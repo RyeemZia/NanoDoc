@@ -1,0 +1,154 @@
+import requests
+import json
+
+accu2=0
+requests.post('http://10.42.0.1:5000/game/jl9588/test123/reset') 
+solutionOfProduct = 1
+solutionOfSum = 0
+login = requests.post('http://10.42.0.1:5000/login/jl9588/test123/C')
+print(login.text)
+hold = '██████████████████████████████████████████████'
+tick = 'http://10.42.0.1:5000/game/jl9588/test123/tick'
+aqstatus = 'http://10.42.0.1:5000/game/jl9588/test123/get_status'
+status = requests.get(aqstatus)
+data = json.loads(status.text)
+position = (data['player_position'])
+bot_location = (data['bot_location'])
+tick = 'http://10.42.0.1:5000/game/jl9588/test123/tick'
+direction2 = 'http://10.42.0.1:5000/game/jl9588/test123/select_direction/2'
+direction1 = 'http://10.42.0.1:5000/game/jl9588/test123/select_direction/1'
+direction0 = 'http://10.42.0.1:5000/game/jl9588/test123/select_direction/0'
+start_hold = 'http://10.42.0.1:5000/game/jl9588/test123/start_holding'
+stop_hold = 'http://10.42.0.1:5000/game/jl9588/test123/stop_holding'
+a_heal = 'http://10.42.0.1:5000/game/jl9588/test123/attempt_heal'
+heal = 'http://10.42.0.1:5000/game/jl9588/test123/heal_solution/'
+
+requests.get(aqstatus)
+json.loads(status.text)
+round_n = int((data['round_number']))
+
+while round_n <= 1000:
+    
+    tick1 = requests.post(tick)
+    print(tick1.text, end='\n')
+    status = requests.get(aqstatus)
+    data = json.loads(status.text)
+    position1 = (data['player_position'])
+    print('Current position is:',position1, end='\n')
+    #changes for comissioning below
+    virus_visible = (data['bot_visible'])
+    virus_location = (data['bot_location'])
+    print('Is the virus visible:',virus_visible,'and its location is',virus_location)
+    #changes for comissioning above
+    requests.post(start_hold)
+    atmptheal = requests.post(a_heal)
+    heal_info = json.loads(atmptheal.text)
+    if 'Challenge' in heal_info.keys():
+        chal_list = heal_info['Challenge']
+        typeOfChallenge = chal_list[0]
+        print(typeOfChallenge)
+        if typeOfChallenge == 'Find the product':
+            for i in range(1,len(chal_list)):
+                accu = chal_list[i]
+                solutionOfProduct *= accu
+            heal_solution = heal+str(solutionOfProduct)
+            healFinish  = requests.post(heal_solution)
+            print(atmptheal.text, end='\n')
+            print(healFinish.text, end='\n')        
+    requests.post(stop_hold)
+    status2 = requests.get(aqstatus)
+    data2 = json.loads(status.text)
+    dire = (data['options'])
+    n_options = int((data["number_of_options"]))
+    score = (data['score'])
+    print('The current score is: ',score)
+    print('The number of options is:', n_options)
+    print('Next position of the NanoBot',dire)
+    if n_options==3:
+        if dire[2]=='Stomach_0':
+            requests.post(direction2)
+            tick_after_dir = requests.post(tick)
+            requests.post(direction0)
+            print(tick_after_dir.text)
+            requests.get(aqstatus)
+            json.loads(status.text)
+            pos_aft_dir = (data['player_position'])
+            print(pos_aft_dir)
+            print(hold)
+        elif dire[0] == 'dude':
+            requests.post(direction2)
+            tick_after_dir1 = requests.post(tick)
+            requests.post(direction0)
+            print(tick_after_dir1.text)
+            status_virus = requests.get(aqstatus)
+            print(status_virus.text)
+            json_virus = json.loads(status_virus.text)
+            pos = (json_virus['player_position'])
+            bot = (json_virus['bot_visible'])
+            
+    elif n_options==2:
+        if dire[1]=='BrainL_0':
+            requests.post(direction1)
+            tick_after_dir = requests.post(tick)
+            requests.post(direction0)
+            print(tick_after_dir.text)
+            requests.post(start_hold)
+            atmptheal2 = requests.post(a_heal)
+            heal_info2 = json.loads(atmptheal2.text)
+            if 'Challenge' in heal_info2.keys():
+                chal_list2 = heal_info2['Challenge']
+                typeOfChallenge = chal_list2[0]
+                print(typeOfChallenge)
+                if typeOfChallenge == 'Find the sum':
+                    for i in range(1,len(chal_list2)):
+                        accu2 = chal_list2[i]
+                        solutionOfSum += accu2
+                    heal_solution2 = heal+str(solutionOfSum)
+                    healFinish2 = requests.post(heal_solution2)
+                    print(atmptheal2.text, end='\n')
+                    print(healFinish2.text, end='\n')         
+            requests.get(aqstatus)
+            json.loads(status.text)
+            pos_aft_dir = (data['player_position'])
+            print(pos_aft_dir)
+            print(hold)
+        elif score==2 and dire[1] == 'LungR_0':
+            requests.post(direction1)
+            tick_after_dir1 = requests.post(tick)
+            requests.post(direction0)
+            print(tick_after_dir1.text)
+            status_virus2 = requests.get(aqstatus)
+            print(status_virus2.text)
+            json_virus2 = json.loads(status_virus2.text)
+            bot = (json_virus2['bot_visible'])
+            pos = (json_virus2['player_position'])
+            
+            while pos=='LungR_0':
+                lul = requests.post(start_hold)
+                status_virus3 = requests.get(aqstatus)
+                json_virus3 = json.loads(status_virus3.text)
+                score2 = (json_virus3['score'])
+                botleg_loc = (json_virus3['bot_location'])
+                nanoloc = (json_virus3['player_position'])
+                finalTick = requests.post(tick)
+                bvisible = (json_virus3['bot_visible'])
+                print(lul.text)
+                print('The current score is:',score2)
+                print('Current Location: ',nanoloc)
+                print('The bot is visible',bvisible,'Virus Location is:',botleg_loc)
+                print(hold)
+                if botleg_loc == '':
+                    print('VICTORY')
+                    break
+
+            
+
+        
+            
+        #changes for comissioning above
+        
+    print(hold, end='\n')
+    
+
+
+requests.post('http://10.42.0.1:5000/game/jl9588/test123/reset') 
